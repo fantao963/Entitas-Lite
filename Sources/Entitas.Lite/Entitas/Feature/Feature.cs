@@ -5,7 +5,7 @@ namespace Entitas
 	public class Feature : Systems
 	{
 		/// Constructor, name could be empty/null for noname systems
-		public Feature(string name)
+		public Feature(IContext context, string name=null):base(context)
 		{
 			name = FeatureHelper.GetUnnamed(name);
 

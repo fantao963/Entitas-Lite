@@ -9,11 +9,11 @@ namespace Entitas {
 	/// You can create and destroy entities and get groups of entities.
 	/// The prefered way to create a context is to use the generated methods
 	/// from the code generator, e.g. var context = new GameContext();
-	public class Context : IContext
-	{
+	public partial class Context<C> : IContext where C : ContextAttribute
+    {
 
-		/// Occurs when an entity gets created.
-		public event ContextEntityChanged OnEntityCreated;
+        /// Occurs when an entity gets created.
+        public event ContextEntityChanged OnEntityCreated;
 
 		/// Occurs when an entity will be destroyed.
 		public event ContextEntityChanged OnEntityWillBeDestroyed;
@@ -57,19 +57,19 @@ namespace Entitas {
 		readonly ContextInfo _contextInfo;
 		readonly Func<IEntity, IAERC> _aercFactory;
 
-		readonly HashSet<Entity> _entities = new HashSet<Entity>(EntityEqualityComparer.comparer);
-		readonly Stack<Entity> _reusableEntities = new Stack<Entity>();
-		readonly HashSet<Entity> _retainedEntities = new HashSet<Entity>(EntityEqualityComparer.comparer);
+		readonly HashSet<IEntity> _entities = new HashSet<IEntity>(EntityEqualityComparer.comparer);
+		readonly Stack<IEntity> _reusableEntities = new Stack<IEntity>();
+		readonly HashSet<IEntity> _retainedEntities = new HashSet<IEntity>(EntityEqualityComparer.comparer);
 
 		readonly Dictionary<string, IEntityIndex> _entityIndices;
 		readonly Dictionary<IMatcher, IGroup> _groups = new Dictionary<IMatcher, IGroup>();
 		readonly List<IGroup>[] _groupsForIndex;
 		readonly IGroup[] _groupForSingle;
 		readonly ObjectPool<List<GroupChanged>> _groupChangedListPool;
-		readonly Dictionary<int, Entity> _entitiesLookup = new Dictionary<int, Entity>();
+		readonly Dictionary<int, IEntity> _entitiesLookup = new Dictionary<int, IEntity>();
 
 		int _creationIndex;
-		Entity[] _entitiesCache;
+        IEntity[] _entitiesCache;
 
 		// Cache delegates to avoid gc allocations
 		EntityComponentChanged _cachedEntityChanged;
@@ -134,7 +134,7 @@ namespace Entitas {
 			_cachedDestroyEntity = onDestroyEntity;
 
 			// Add listener for updating lookup
-			OnEntityCreated += (c, entity) => _entitiesLookup.Add(entity.creationIndex, (Entity)entity);
+			OnEntityCreated += (c, entity) => _entitiesLookup.Add(entity.creationIndex, (IEntity)entity);
 			OnEntityDestroyed += (c, entity) => _entitiesLookup.Remove(entity.creationIndex);
 		}
 
@@ -152,9 +152,9 @@ namespace Entitas {
 
 		/// Creates a new entity or gets a reusable entity from the
 		/// internal ObjectPool for entities.
-		public Entity CreateEntity()
+		public IEntity CreateEntity()
 		{
-			Entity entity;
+            IEntity entity;
 
 			if (_reusableEntities.Count > 0)
 			{
@@ -163,7 +163,7 @@ namespace Entitas {
 			}
 			else
 			{
-				entity = (Entity)Activator.CreateInstance(typeof(Entity));
+				entity = (IEntity)Activator.CreateInstance(typeof(Entity<C>));
 				entity.Initialize(_creationIndex++, _totalComponents, _componentPools, _contextInfo, _aercFactory(entity));
 			}
 
@@ -183,16 +183,16 @@ namespace Entitas {
 			return entity;
 		}
 
-		public Entity CreateEntity(string name)
+		public IEntity CreateEntity(string name)
 		{
-			Entity entity = CreateEntity();
+            IEntity entity = CreateEntity();
 			entity.name = name;
 			return entity;
 		}
 
 		/// Destroys the entity, removes all its components and pushs it back
 		/// to the internal ObjectPool for entities.
-		private void DestroyEntity(Entity entity)
+		private void DestroyEntity(IEntity entity)
 		{
 			var removed = _entities.Remove(entity);
 			if (!removed)
@@ -252,17 +252,17 @@ namespace Entitas {
 		}
 
 		/// Determines whether the context has the specified entity.
-		public bool HasEntity(Entity entity)
+		public bool HasEntity(IEntity entity)
 		{
 			return _entities.Contains(entity);
 		}
 
 		/// Returns all entities which are currently in the context.
-		public Entity[] GetEntities()
+		public IEntity[] GetEntities()
 		{
 			if (_entitiesCache == null)
 			{
-				_entitiesCache = new Entity[_entities.Count];
+				_entitiesCache = new IEntity[_entities.Count];
 				_entities.CopyTo(_entitiesCache);
 			}
 
@@ -378,7 +378,7 @@ namespace Entitas {
 			{
 				var events = _groupChangedListPool.Get();
 
-				var tEntity = (Entity)entity;
+				var tEntity = (IEntity)entity;
 
 				for (int i = 0; i < groups.Count; i++)
 				{
@@ -406,7 +406,7 @@ namespace Entitas {
 			if (groups != null)
 			{
 
-				var tEntity = (Entity)entity;
+				var tEntity = (IEntity)entity;
 
 				for (int i = 0; i < groups.Count; i++)
 				{
@@ -425,7 +425,7 @@ namespace Entitas {
 					"Cannot release " + entity + "!"
 				);
 			}
-			var tEntity = (Entity)entity;
+			var tEntity = (IEntity)entity;
 			entity.RemoveAllOnEntityReleasedHandlers();
 			_retainedEntities.Remove(tEntity);
 			_reusableEntities.Push(tEntity);
@@ -433,28 +433,28 @@ namespace Entitas {
 
 		void onDestroyEntity(IEntity entity)
 		{
-			DestroyEntity((Entity)entity);
+			DestroyEntity((IEntity)entity);
 		}
 
 
 		/// returns entity matching the specified creationIndex
-		public Entity GetEntity(int creationIndex)
+		public IEntity GetEntity(int creationIndex)
 		{
 			if (_entitiesLookup == null)
 				return null;
 
-			Entity entity = null;
+            IEntity entity = null;
 			_entitiesLookup.TryGetValue(creationIndex, out entity);
 
 			return entity;
 		}
 
 		/// return unique entity with specified component
-		public Entity GetSingleEntity<T>() where T : IComponent,IUnique {
-			return GetSingleEntity(ComponentIndex<T>.FindIn(this.contextInfo));
+		public IEntity GetSingleEntity<T>() where T : IComponent,IUnique {
+			return GetSingleEntity(ComponentIndex<C,T>.FindIn(this.contextInfo));
 		}
 
-		public Entity GetSingleEntity(int componentIndex) {
+		public IEntity GetSingleEntity(int componentIndex) {
 			IGroup group = _groupForSingle[componentIndex];
 
 			if (group == null) {
@@ -466,7 +466,7 @@ namespace Entitas {
 		}
 
 		public T GetUnique<T>() where T : IComponent,IUnique {
-			int componentIndex = ComponentIndex<T>.FindIn(this.contextInfo);
+			int componentIndex = ComponentIndex<C, T>.FindIn(this.contextInfo);
 
 			IComponent component = GetUniqueComponent(componentIndex);
 			if (component == null)
@@ -476,7 +476,7 @@ namespace Entitas {
 		}
 
 		private IComponent GetUniqueComponent(int componentIndex) {
-			Entity entity = GetSingleEntity(componentIndex);
+            IEntity entity = GetSingleEntity(componentIndex);
 			if (entity == null)
 				return null;
 			
@@ -484,9 +484,9 @@ namespace Entitas {
 		}
 
 		public T AddUnique<T>(bool useExisted = true) where T : IComponent, IUnique, new() {
-			int componentIndex = ComponentIndex<T>.FindIn(this.contextInfo);
+			int componentIndex = ComponentIndex<C, T>.FindIn(this.contextInfo);
 
-			Entity entity = GetSingleEntity(componentIndex);
+            IEntity entity = GetSingleEntity(componentIndex);
 			if (entity != null) {
 				if (!useExisted)
 					throw new EntityAlreadyHasComponentException(
@@ -505,7 +505,7 @@ namespace Entitas {
 		}
 
 		public T ModifyUnique<T>() where T : IComponent,IUnique {
-			int componentIndex = ComponentIndex<T>.FindIn(this.contextInfo);
+			int componentIndex = ComponentIndex<C, T>.FindIn(this.contextInfo);
 
 			IComponent component = ModifyUniqueComponent(componentIndex);
 			if (component == null)
@@ -515,7 +515,7 @@ namespace Entitas {
 		}
 
 		private IComponent ModifyUniqueComponent(int componentIndex) {
-			Entity entity = GetSingleEntity(componentIndex);
+            IEntity entity = GetSingleEntity(componentIndex);
 			if (entity == null)
 				return null;
 

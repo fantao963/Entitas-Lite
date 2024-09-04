@@ -3,10 +3,10 @@ using System.Collections.Generic;
 
 namespace Entitas {
 
-    public delegate void GroupChanged(IGroup group, Entity entity, int index, IComponent component);
-    public delegate void GroupUpdated(IGroup group, Entity entity, int index, IComponent previousComponent, IComponent newComponent);
+    public delegate void GroupChanged(IGroup group, IEntity entity, int index, IComponent component);
+    public delegate void GroupUpdated(IGroup group, IEntity entity, int index, IComponent previousComponent, IComponent newComponent);
 
-    public interface IGroup : IEnumerable<Entity> {
+    public interface IGroup : IEnumerable<IEntity> {
 
         int count { get; }
 
@@ -18,16 +18,16 @@ namespace Entitas {
 
 		IMatcher matcher { get; }
 
-		void HandleEntitySilently(Entity entity);
-		void HandleEntity(Entity entity, int index, IComponent component);
+		void HandleEntitySilently(IEntity entity);
+		void HandleEntity(IEntity entity, int index, IComponent component);
 
-		GroupChanged HandleEntity(Entity entity);
+		GroupChanged HandleEntity(IEntity entity);
 
-		void UpdateEntity(Entity entity, int index, IComponent previousComponent, IComponent newComponent);
+		void UpdateEntity(IEntity entity, int index, IComponent previousComponent, IComponent newComponent);
 
-		bool ContainsEntity(Entity entity);
+		bool ContainsEntity(IEntity entity);
 
-		Entity[] GetEntities();
-		Entity GetSingleEntity();
+        IEntity[] GetEntities();
+        IEntity GetSingleEntity();
 	}
 }

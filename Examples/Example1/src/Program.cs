@@ -15,9 +15,9 @@ namespace Example
 		public int x;
 		public int y;
 	}
-
-	// if no context declaration, it comes into Default context
-	public class VelocityComponent : IComponent
+    [Default]
+    // if no context declaration, it comes into Default context
+    public class VelocityComponent : IComponent
 	{
 		public int x;
 		public int y;
@@ -29,14 +29,20 @@ namespace Example
 			y = ny;
 		}
 	}
-
-	// if no feature-set declaration, it comes into UnnamedFeature
-	public class MovementSystem : IExecuteSystem
+    [Default]
+    // if no feature-set declaration, it comes into UnnamedFeature
+    public class MovementSystem : IExecuteSystem
 	{
-		public void Execute()
+
+        public IContext Context { get; set; }
+		
+
+        public void Execute()
 		{
+
 			// new API for getting group with all matched entities from context
-			var entities = Context<Default>.AllOf<PositionComponent, VelocityComponent>().GetEntities();
+			var entities = Context.AllOf<PositionComponent, VelocityComponent>().GetEntities();
+			//var entities = Context.GetGroup<PositionComponent, VelocityComponent>();
 
 			foreach (var e in entities)
 			{
@@ -48,17 +54,30 @@ namespace Example
 			}
 		}
 	}
-
-	// Sample view just display Entity's Position if changed
-	public class ViewSystem : ReactiveSystem
+    [Default]
+    // Sample view just display Entity's Position if changed
+    public class ViewSystem : ReactiveSystem,IInitializeSystem
 	{
 		public ViewSystem()
 		{
 			// new API, add monitor that watch Position changed and call Process 
-			monitors += Context<Default>.AllOf<PositionComponent>().OnAdded(Process);
+			//monitors += Context<Default>.AllOf<PositionComponent>().OnAdded(Process);
 		}
 
-		protected void Process(List<Entity> entities)
+  
+        public override void Execute()
+        {
+
+
+            base.Execute();
+        }
+
+        public void Initialize()
+        {
+            monitors += Context.AllOf<PositionComponent>().OnAdded(Process);
+        }
+
+        protected void Process(List<IEntity> entities)
 		{
 			foreach (var e in entities)
 			{
@@ -83,7 +102,7 @@ namespace Example
 
 		public void Start()
 		{
-			var contexts = Contexts.sharedInstance;
+			//var contexts = Contexts.sharedInstance;
 
 #if UNITY_EDITOR
 			ContextObserverHelper.ObserveAll(contexts);
@@ -91,7 +110,7 @@ namespace Example
 
 			// create random entity
 			var rand = new System.Random();
-			var context = Contexts.Default;
+			var context = new Context<Default>(100);
 			var e = context.CreateEntity();
 				e.Add<PositionComponent>();
 				e.Add<VelocityComponent>().SetValue(rand.Next()%10, rand.Next()%10);
@@ -100,7 +119,7 @@ namespace Example
 			_feature = FeatureObserverHelper.CreateFeature(null);
 #else
 			// init systems, auto collect matched systems, no manual Systems.Add(ISystem) required
-			_feature = new Feature(null);
+			_feature = new Feature(context);
 #endif
 			_feature.Initialize();
 		}

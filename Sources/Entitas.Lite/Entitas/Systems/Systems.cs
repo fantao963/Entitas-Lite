@@ -18,8 +18,11 @@ namespace Entitas {
 
 		protected readonly List<ISystem> _allSystems;
 
-		/// Creates a new Systems instance.
-		public Systems() {
+        public IContext Context { get ; set ; }
+
+        /// Creates a new Systems instance.
+        public Systems(IContext context) {
+            Context = context;
             _initializeSystems = new List<IInitializeSystem>();
             _executeSystems = new List<IExecuteSystem>();
             _cleanupSystems = new List<ICleanupSystem>();
@@ -50,6 +53,7 @@ namespace Entitas {
             }
 
 			_allSystems.Add(system);
+            system.Context = this.Context;
             return this;
         }
 

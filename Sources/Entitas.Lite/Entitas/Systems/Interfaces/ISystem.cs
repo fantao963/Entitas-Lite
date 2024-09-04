@@ -5,5 +5,6 @@
     /// Use IInitializeSystem, IExecuteSystem,
     /// ICleanupSystem or ITearDownSystem.
     public interface ISystem {
+        IContext Context { get; set; }
     }
 }

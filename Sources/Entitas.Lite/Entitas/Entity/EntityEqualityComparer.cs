@@ -2,15 +2,15 @@
 
 namespace Entitas {
 
-    public class EntityEqualityComparer : IEqualityComparer<Entity> {
+    public class EntityEqualityComparer : IEqualityComparer<IEntity> {
 
-        public static readonly IEqualityComparer<Entity> comparer = new EntityEqualityComparer();
+        public static readonly IEqualityComparer<IEntity> comparer = new EntityEqualityComparer();
 
-        public bool Equals(Entity x, Entity y) {
+        public bool Equals(IEntity x, IEntity y) {
             return x == y;
         }
 
-        public int GetHashCode(Entity obj) {
+        public int GetHashCode(IEntity obj) {
             return obj.creationIndex;
         }
     }

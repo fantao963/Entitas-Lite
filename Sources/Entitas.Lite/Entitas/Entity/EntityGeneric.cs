@@ -2,14 +2,14 @@
 namespace Entitas
 {
 	/// using ComponentIndex<T> to Component->Index mapping
-	public partial class Entity
+	public partial class Entity<C>
 	{
 		/// add a new Component, return the old one if exists
 		public T Add<T>(bool useExisted = true) where T : IComponent, new()
 		{
 			T component;
 
-			int index = ComponentIndex<T>.FindIn(_contextInfo);
+			int index = ComponentIndex<C,T>.FindIn(_contextInfo);
 
 			if (useExisted && HasComponent(index))
 			{
@@ -33,7 +33,7 @@ namespace Entitas
 		/// replace Component with a NEW one
 		public T ReplaceNew<T>() where T : IComponent, new()
 		{
-			int index = ComponentIndex<T>.FindIn(_contextInfo);
+			int index = ComponentIndex<C,T>.FindIn(_contextInfo);
 
 			T component = CreateComponent<T>(index);
 			ReplaceComponent(index, component);
@@ -48,7 +48,7 @@ namespace Entitas
 
 		public void Remove<T>(bool ignoreNotFound = true) where T: IComponent
 		{
-			int index = ComponentIndex<T>.FindIn(_contextInfo);
+			int index = ComponentIndex<C,T>.FindIn(_contextInfo);
 			if (ignoreNotFound && !HasComponent(index))
 				return;
 
@@ -62,7 +62,7 @@ namespace Entitas
 		
 		public bool Has<T>() where T : IComponent
 		{
-			int index = ComponentIndex<T>.FindIn(_contextInfo);
+			int index = ComponentIndex<C, T>.FindIn(_contextInfo);
 			return HasComponent(index);
 		}
 
@@ -73,7 +73,7 @@ namespace Entitas
 
 		public T Get<T>() where T : IComponent
 		{
-			int index = ComponentIndex<T>.FindIn(_contextInfo);
+			int index = ComponentIndex<C,T>.FindIn(_contextInfo);
 			return (T)GetComponent(index);
 		}
 
@@ -85,7 +85,7 @@ namespace Entitas
 		/// Get Component for modification, mark automatically
 		public T Modify<T>() where T : IComponent
 		{
-			int index = ComponentIndex<T>.FindIn(_contextInfo);
+			int index = ComponentIndex<C, T>.FindIn(_contextInfo);
 			return (T)ModifyComponent(index);
 		}
 
@@ -104,7 +104,7 @@ namespace Entitas
 		/// Mark component modified, trigger GroupEvent and ReactiveSystem
 		public void SetModified<T>() where T : IComponent, new()
 		{
-			int index = ComponentIndex<T>.FindIn(_contextInfo);
+			int index = ComponentIndex<C,T>.FindIn(_contextInfo);
 			SetModified(index);
 		}
 

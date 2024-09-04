@@ -5,25 +5,25 @@ namespace Entitas {
 
     public class EntityIndex<TKey> : AbstractEntityIndex<TKey> {
 
-        readonly Dictionary<TKey, HashSet<Entity>> _index;
+        readonly Dictionary<TKey, HashSet<IEntity>> _index;
 
-        public EntityIndex(string name, IGroup group, Func<Entity, IComponent, TKey> getKey) : base(name, group, getKey) {
-            _index = new Dictionary<TKey, HashSet<Entity>>();
+        public EntityIndex(string name, IGroup group, Func<IEntity, IComponent, TKey> getKey) : base(name, group, getKey) {
+            _index = new Dictionary<TKey, HashSet<IEntity>>();
             Activate();
         }
 
-        public EntityIndex(string name, IGroup group, Func<Entity, IComponent, TKey[]> getKeys) : base(name, group, getKeys) {
-            _index = new Dictionary<TKey, HashSet<Entity>>();
+        public EntityIndex(string name, IGroup group, Func<IEntity, IComponent, TKey[]> getKeys) : base(name, group, getKeys) {
+            _index = new Dictionary<TKey, HashSet<IEntity>>();
             Activate();
         }
 
-        public EntityIndex(string name, IGroup group, Func<Entity, IComponent, TKey> getKey, IEqualityComparer<TKey> comparer) : base(name, group, getKey) {
-            _index = new Dictionary<TKey, HashSet<Entity>>(comparer);
+        public EntityIndex(string name, IGroup group, Func<IEntity, IComponent, TKey> getKey, IEqualityComparer<TKey> comparer) : base(name, group, getKey) {
+            _index = new Dictionary<TKey, HashSet<IEntity>>(comparer);
             Activate();
         }
 
-        public EntityIndex(string name, IGroup group, Func<Entity, IComponent, TKey[]> getKeys, IEqualityComparer<TKey> comparer) : base(name, group, getKeys) {
-            _index = new Dictionary<TKey, HashSet<Entity>>(comparer);
+        public EntityIndex(string name, IGroup group, Func<IEntity, IComponent, TKey[]> getKeys, IEqualityComparer<TKey> comparer) : base(name, group, getKeys) {
+            _index = new Dictionary<TKey, HashSet<IEntity>>(comparer);
             Activate();
         }
 
@@ -32,10 +32,10 @@ namespace Entitas {
             indexEntities(_group);
         }
 
-        public HashSet<Entity> GetEntities(TKey key) {
-            HashSet<Entity> entities;
+        public HashSet<IEntity> GetEntities(TKey key) {
+            HashSet<IEntity> entities;
             if (!_index.TryGetValue(key, out entities)) {
-                entities = new HashSet<Entity>(EntityEqualityComparer.comparer);
+                entities = new HashSet<IEntity>(EntityEqualityComparer.comparer);
                 _index.Add(key, entities);
             }
 
@@ -63,7 +63,7 @@ namespace Entitas {
             _index.Clear();
         }
 
-        protected override void addEntity(TKey key, Entity entity) {
+        protected override void addEntity(TKey key, IEntity entity) {
             GetEntities(key).Add(entity);
 
             var safeAerc = entity.aerc as SafeAERC;
@@ -76,7 +76,7 @@ namespace Entitas {
             }
         }
 
-        protected override void removeEntity(TKey key, Entity entity) {
+        protected override void removeEntity(TKey key, IEntity entity) {
             GetEntities(key).Remove(entity);
 
             var safeAerc = entity.aerc as SafeAERC;

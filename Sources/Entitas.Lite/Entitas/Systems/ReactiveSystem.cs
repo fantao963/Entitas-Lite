@@ -9,7 +9,8 @@ namespace Entitas {
     /// of the related gameObject.
     public abstract class ReactiveSystem : IReactiveSystem {
 
-		readonly MonitorList _monitors;
+        public IContext Context { get; set; }
+        readonly MonitorList _monitors;
         string _toStringCache;
 		
         protected ReactiveSystem() {

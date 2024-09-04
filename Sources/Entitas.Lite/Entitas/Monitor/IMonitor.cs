@@ -2,8 +2,8 @@
 
 namespace Entitas {
 
-	public delegate bool MonitorFilter(Entity entity);
-	public delegate void MonitorProcessor(List<Entity> entities);
+	public delegate bool MonitorFilter(IEntity entity);
+	public delegate void MonitorProcessor(List<IEntity> entities);
 
 	public interface IMonitor {
 

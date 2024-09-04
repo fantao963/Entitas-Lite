@@ -28,6 +28,7 @@ namespace Entitas {
         Stack<IComponent>[] componentPools { get; }
         ContextInfo contextInfo { get; }
         IAERC aerc { get; }
+        string name { get; set; }
 
         void Initialize(int creationIndex,
                         int totalComponents,
@@ -58,5 +59,20 @@ namespace Entitas {
         void Destroy();
         void InternalDestroy();
         void RemoveAllOnEntityReleasedHandlers();
+        T Get<T>() where T : IComponent;
+        T Add<T>(bool useExisted = true) where T : IComponent, new();
+        T AddComponent<T>(bool useExisted = true) where T : IComponent, new();
+        T ReplaceNew<T>() where T : IComponent, new();
+        T ReplaceNewComponent<T>() where T : IComponent, new();
+        void Remove<T>(bool ignoreNotFound = true) where T : IComponent;
+        void RemoveComponent<T>(bool ignoreNotFound = true) where T : IComponent;
+        bool Has<T>() where T : IComponent;
+        bool HasComponent<T>() where T : IComponent;
+        T GetComponent<T>() where T : IComponent;
+        T Modify<T>() where T : IComponent;
+        T ModifyComponent<T>() where T : IComponent;
+        IComponent ModifyComponent(int index);
+        void SetModified<T>() where T : IComponent, new();
+        void SetModified(int index);
     }
 }

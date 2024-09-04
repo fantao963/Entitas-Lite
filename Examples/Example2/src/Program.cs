@@ -16,14 +16,16 @@ namespace Example
 
 	public class CollectInputSystem : IExecuteSystem
 	{
-		public void Execute()
+        public IContext Context { get; set ; }
+
+        public void Execute()
 		{
 			bool spaceKey = false;
 
 #if CONSOLE_APP
 			if (Console.KeyAvailable)
 			{
-				var key = Console.ReadKey(true).Key;
+				   var key = Console.ReadKey(true).Key;
 				if (key == ConsoleKey.Escape)
 					Environment.Exit(0);
 
@@ -38,19 +40,24 @@ namespace Example
 
 			if (spaceKey)
 			{
-				Contexts.Default.AddUnique<InputComponent>().spaceKey = true;
+                Context.AddUnique<InputComponent>().spaceKey = true;
 			}
 		}
 	}
 
-	public class ProcessInputSystem : ReactiveSystem
+	public class ProcessInputSystem : ReactiveSystem,IInitializeSystem
 	{
 		public ProcessInputSystem()
 		{
-			monitors += Context<Default>.AllOf<InputComponent>().OnAdded(Process);
+			
 		}
 
-		protected void Process(List<Entity> entities)
+        public void Initialize()
+        {
+            monitors += Context.AllOf<InputComponent>().OnAdded(Process);
+        }
+
+        protected void Process(List<IEntity> entities)
 		{
 			var e = entities[0];
 			var input = e.Get<InputComponent>();
@@ -73,10 +80,12 @@ namespace Example
 #endif
 	{
 		private Systems _feature;
+		private IContext _context;
 
 		public void Start()
 		{
-			var contexts = Contexts.sharedInstance;
+			//var contexts = Contexts.sharedInstance;
+			_context = new Context<Default>(100);
 
 #if UNITY_EDITOR
 			ContextObserverHelper.ObserveAll(contexts);
@@ -86,7 +95,7 @@ namespace Example
 			_feature = FeatureObserverHelper.CreateFeature(null);
 #else
 			// init systems, auto collect matched systems, no manual Systems.Add(ISystem) required
-			_feature = new Feature(null);
+			_feature = new Feature(_context);
 #endif
 			_feature.Initialize();
 		}
@@ -115,7 +124,8 @@ namespace Example
 			{
 				game.Update();
 
-				Thread.Sleep(20);
+				Thread.Yield();
+				//Thread.Sleep(20);
 
 				if (Console.KeyAvailable && Console.ReadKey(true).Key == ConsoleKey.Escape)
 					break;

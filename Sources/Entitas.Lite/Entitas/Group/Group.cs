@@ -28,12 +28,12 @@ namespace Entitas {
 
         readonly IMatcher _matcher;
 
-        readonly HashSet<Entity> _entities = new HashSet<Entity>(
+        readonly HashSet<IEntity> _entities = new HashSet<IEntity>(
             EntityEqualityComparer.comparer
         );
 
-        Entity[] _entitiesCache;
-        Entity _singleEntityCache;
+        IEntity[] _entitiesCache;
+        IEntity _singleEntityCache;
         string _toStringCache;
 
         /// Use context.GetGroup(matcher) to get a group of entities which match
@@ -43,7 +43,7 @@ namespace Entitas {
         }
 
         /// This is used by the context to manage the group.
-        public void HandleEntitySilently(Entity entity) {
+        public void HandleEntitySilently(IEntity entity) {
             if (_matcher.Matches(entity)) {
                 addEntitySilently(entity);
             } else {
@@ -52,7 +52,7 @@ namespace Entitas {
         }
 
         /// This is used by the context to manage the group.
-        public void HandleEntity(Entity entity, int index, IComponent component) {
+        public void HandleEntity(IEntity entity, int index, IComponent component) {
             if (_matcher.Matches(entity)) {
                 addEntity(entity, index, component);
             } else {
@@ -61,7 +61,7 @@ namespace Entitas {
         }
 
         /// This is used by the context to manage the group.
-        public void UpdateEntity(Entity entity, int index, IComponent previousComponent, IComponent newComponent) {
+        public void UpdateEntity(IEntity entity, int index, IComponent previousComponent, IComponent newComponent) {
             if (_entities.Contains(entity)) {
                 if (OnEntityRemoved != null) {
                     OnEntityRemoved(this, entity, index, previousComponent);
@@ -83,13 +83,13 @@ namespace Entitas {
             OnEntityUpdated = null;
         }
 
-        public GroupChanged HandleEntity(Entity entity) {
+        public GroupChanged HandleEntity(IEntity entity) {
             return _matcher.Matches(entity)
                        ? (addEntitySilently(entity) ? OnEntityAdded : null)
                        : (removeEntitySilently(entity) ? OnEntityRemoved : null);
         }
 
-        bool addEntitySilently(Entity entity) {
+        bool addEntitySilently(IEntity entity) {
             if (entity.isEnabled) {
                 var added = _entities.Add(entity);
                 if (added) {
@@ -104,13 +104,13 @@ namespace Entitas {
             return false;
         }
 
-        void addEntity(Entity entity, int index, IComponent component) {
+        void addEntity(IEntity entity, int index, IComponent component) {
             if (addEntitySilently(entity) && OnEntityAdded != null) {
                 OnEntityAdded(this, entity, index, component);
             }
         }
 
-        bool removeEntitySilently(Entity entity) {
+        bool removeEntitySilently(IEntity entity) {
             var removed = _entities.Remove(entity);
             if (removed) {
                 _entitiesCache = null;
@@ -121,7 +121,7 @@ namespace Entitas {
             return removed;
         }
 
-        void removeEntity(Entity entity, int index, IComponent component) {
+        void removeEntity(IEntity entity, int index, IComponent component) {
             var removed = _entities.Remove(entity);
             if (removed) {
                 _entitiesCache = null;
@@ -134,22 +134,22 @@ namespace Entitas {
         }
 
         /// Determines whether this group has the specified entity.
-        public bool ContainsEntity(Entity entity) {
+        public bool ContainsEntity(IEntity entity) {
             return _entities.Contains(entity);
         }
 
         /// Returns all entities which are currently in this group.
-        public Entity[] GetEntities() {
+        public IEntity[] GetEntities() {
             if (_entitiesCache == null) {
-                _entitiesCache = new Entity[_entities.Count];
+                _entitiesCache = new IEntity[_entities.Count];
                 _entities.CopyTo(_entitiesCache);
             }
 
             return _entitiesCache;
         }
 
-        public IEnumerator<Entity> GetEnumerator() {
-			var entities = (IEnumerable<Entity>)GetEntities();
+        public IEnumerator<IEntity> GetEnumerator() {
+			var entities = (IEnumerable<IEntity>)GetEntities();
 			return entities.GetEnumerator();
         }
 
@@ -160,7 +160,7 @@ namespace Entitas {
         /// Returns the only entity in this group. It will return null
         /// if the group is empty. It will throw an exception if the group
         /// has more than one entity.
-        public Entity GetSingleEntity() {
+        public IEntity GetSingleEntity() {
             if (_singleEntityCache == null) {
                 var c = _entities.Count;
                 if (c == 1) {

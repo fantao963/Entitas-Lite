@@ -4,10 +4,11 @@ namespace Entitas
 	/// Execute on each entity which matches
 	public abstract class ExecuteSystem : IExecuteSystem
 	{
-		protected IMatcher _matcher;
-		protected Context _context;
+        public IContext Context { get; set; }
+        protected IMatcher _matcher;
+		protected IContext _context;
 
-		public ExecuteSystem(Context context, IMatcher matcher)
+		public ExecuteSystem(IContext context, IMatcher matcher)
 		{
 			_context = context;
 			_matcher = matcher;
@@ -22,6 +23,6 @@ namespace Entitas
 			}
 		}
 
-		protected abstract void Execute(Entity entity);
+		protected abstract void Execute(IEntity entity);
 	}
 }

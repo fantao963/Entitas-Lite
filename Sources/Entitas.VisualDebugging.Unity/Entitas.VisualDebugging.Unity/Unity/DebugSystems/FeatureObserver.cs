@@ -4,7 +4,7 @@ namespace Entitas.VisualDebugging.Unity
 {
 	public class FeatureWithObserver : DebugSystems
 	{
-		public FeatureWithObserver(string name) : base(FeatureHelper.GetUnnamed(name))
+		public FeatureWithObserver(IContext content, string name) : base(content,FeatureHelper.GetUnnamed(name))
 		{
 			FeatureHelper.CollectSystems(this.name, this);
 			Object.DontDestroyOnLoad(this.gameObject);
@@ -13,12 +13,12 @@ namespace Entitas.VisualDebugging.Unity
 
 	public static class FeatureObserverHelper
 	{
-		public static Systems CreateFeature(string name)
+		public static Systems CreateFeature(IContext content, string name)
 		{
 			if (!Application.isPlaying || !Application.isEditor)
-				return new Feature(name);
+				return new Feature(content,name);
 
-			return new FeatureWithObserver(name);
+			return new FeatureWithObserver(content,name);
 		}
 
 		public static void ClearAll()

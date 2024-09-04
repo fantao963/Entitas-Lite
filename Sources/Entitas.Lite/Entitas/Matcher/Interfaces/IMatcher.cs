@@ -3,6 +3,6 @@
     public interface IMatcher {
 
         int[] indices { get; }
-        bool Matches(Entity entity);
+        bool Matches(IEntity entity);
     }
 }

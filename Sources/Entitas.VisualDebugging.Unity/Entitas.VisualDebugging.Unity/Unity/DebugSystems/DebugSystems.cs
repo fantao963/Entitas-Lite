@@ -109,11 +109,12 @@ namespace Entitas.VisualDebugging.Unity {
         double _executeDuration;
         double _cleanupDuration;
 
-        public DebugSystems(string name) {
+        public DebugSystems(IContext context,string name):base(context) {
             initialize(name);
         }
 
-        protected DebugSystems(bool noInit) {
+        protected DebugSystems(IContext context,bool noInit) : base(context)
+        {
         }
 
         protected void initialize(string name) {

@@ -10,8 +10,8 @@ namespace Entitas {
 		void Deactivate();
 		void ClearCollectedEntities();
 
-        IEnumerable<Entity> GetCollectedEntities();
+        IEnumerable<IEntity> GetCollectedEntities();
 
-		HashSet<Entity> collectedEntities { get; }
+		HashSet<IEntity> collectedEntities { get; }
 	}
 }

@@ -4,10 +4,10 @@ namespace Entitas.VisualDebugging.Unity
 {
 	public static class ContextObserverHelper
 	{
-		public static void ObserveAll()
-		{
-			ObserveAll(Contexts.sharedInstance);
-		}
+		//public static void ObserveAll()
+		//{
+		//	ObserveAll(Contexts.sharedInstance);
+		//}
 
 		public static void ObserveAll(IContexts contexts)
 		{

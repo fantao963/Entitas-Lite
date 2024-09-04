@@ -5,7 +5,7 @@ namespace Readme {
 
     public static class ReadmeSnippets {
 
-        public static Entity CreateRedGem(this Context context, Vector3 position) {
+        public static IEntity CreateRedGem(this IContext context, Vector3 position) {
             var entity = context.CreateEntity();
 				entity.Add<GameBoardElementComponent>();
 				entity.Add<MovableComponent>();
@@ -17,7 +17,12 @@ namespace Readme {
         }
 
         static void moveSystem() {
-            var entities = Context<Game>.AllOf<PositionComponent, VelocityComponent>().GetEntities();
+            var context = new Context<Game>(100);
+            //
+            //...
+            //
+
+            var entities = context.AllOf<PositionComponent, VelocityComponent>().GetEntities();
             foreach (var e in entities) {
 				var vel = e.Get<VelocityComponent>();
 				var pos = e.Modify<PositionComponent>();
@@ -25,7 +30,7 @@ namespace Readme {
             }
         }
 
-        static void entityExample(Entity entity) {
+        static void entityExample(IEntity entity) {
             entity.Add<PositionComponent>().value = new Vector3(1, 2, 3);
             entity.Add<HealthComponent>().value = 100;
             entity.Add<MovableComponent>();
@@ -35,15 +40,15 @@ namespace Readme {
             entity.Remove<MovableComponent>();
 
             entity.Remove<PositionComponent>();
-
+            
             var hasPos = entity.Has<PositionComponent>();
             var movable = entity.Has<MovableComponent>();
         }
 
         static void contextExample() {
             // contexts.context is kindly generated for you by the code generator
-            var contexts = Contexts.sharedInstance;
-            var context = contexts.GetContext<Game>();
+            //var contexts = Contexts.sharedInstance;
+            var context = new Context<Game>(100);
             var entity = context.CreateEntity();
             entity.Add<MovableComponent>();
 
@@ -55,7 +60,7 @@ namespace Readme {
             }
         }
 
-        static void groupExample(Context context) {
+        static void groupExample(IContext context) {
             context.GetGroup(Matcher<Game>.AllOf<PositionComponent>()).GetEntities();
 
             // ----------------------------
@@ -65,7 +70,7 @@ namespace Readme {
             };
         }
 
-        static void collectorExample(Context context) {
+        static void collectorExample(IContext context) {
             var group = context.GetGroup(Matcher<Game>.AllOf<PositionComponent>());
             var collector = group.CreateCollector(GroupEvent.Added);
 
@@ -81,7 +86,11 @@ namespace Readme {
         }
 
 		static void monitorExample() {
-			var group = Context<Game>.AllOf<PositionComponent>();
+            var context = new Context<Game>(100);
+            //
+            //...
+            //
+            var group = context.AllOf<PositionComponent>();
 			var monitor = group.OnAdded(
 				entities => {
 					foreach (var e in entities) {
@@ -93,7 +102,7 @@ namespace Readme {
 			monitor.Execute();
 		}
 
-        static void positionComponent(Entity e, PositionComponent component, Vector3 position, Vector3 newPosition) {
+        static void positionComponent(IEntity e, PositionComponent component, Vector3 position, Vector3 newPosition) {
             var pos = e.Get<PositionComponent>();
             var has = e.Has<PositionComponent>();
 
@@ -104,19 +113,19 @@ namespace Readme {
         }
 
         #pragma warning disable
-        static void userComponent(Context context, UserComponent component) {
+        static void userComponent(IContext context, UserComponent component) {
             var e = context.GetSingleEntity<UserComponent>();
 			var has = (e != null);
 			var user = e.Get<UserComponent>();
         }
 
-        static void movableComponent(Entity e) {
+        static void movableComponent(IEntity e) {
             var movable = e.Has<MovableComponent>();
             e.Add<MovableComponent>();
             e.Remove<MovableComponent>();
         }
 
-        static void animatingComponent(Context context) {
+        static void animatingComponent(IContext context) {
             var e = context.GetSingleEntity<AnimatingComponent>();
 			var isAnimating = (e != null);
         }

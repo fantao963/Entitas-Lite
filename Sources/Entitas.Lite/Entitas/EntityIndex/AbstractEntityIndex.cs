@@ -8,18 +8,18 @@ namespace Entitas {
 
         protected readonly string _name;
         protected readonly IGroup _group;
-        protected readonly Func<Entity, IComponent, TKey> _getKey;
-        protected readonly Func<Entity, IComponent, TKey[]> _getKeys;
+        protected readonly Func<IEntity, IComponent, TKey> _getKey;
+        protected readonly Func<IEntity, IComponent, TKey[]> _getKeys;
         protected readonly bool _isSingleKey;
 
-        protected AbstractEntityIndex(string name, IGroup group, Func<Entity, IComponent, TKey> getKey) {
+        protected AbstractEntityIndex(string name, IGroup group, Func<IEntity, IComponent, TKey> getKey) {
             _name = name;
             _group = group;
             _getKey = getKey;
             _isSingleKey = true;
         }
 
-        protected AbstractEntityIndex(string name, IGroup group, Func<Entity, IComponent, TKey[]> getKeys) {
+        protected AbstractEntityIndex(string name, IGroup group, Func<IEntity, IComponent, TKey[]> getKeys) {
             _name = name;
             _group = group;
             _getKeys = getKeys;
@@ -54,7 +54,7 @@ namespace Entitas {
             }
         }
 
-        protected void onEntityAdded(IGroup group, Entity entity, int index, IComponent component) {
+        protected void onEntityAdded(IGroup group, IEntity entity, int index, IComponent component) {
             if (_isSingleKey) {
                 addEntity(_getKey(entity, component), entity);
             } else {
@@ -65,7 +65,7 @@ namespace Entitas {
             }
         }
 
-        protected void onEntityRemoved(IGroup group, Entity entity, int index, IComponent component) {
+        protected void onEntityRemoved(IGroup group, IEntity entity, int index, IComponent component) {
             if (_isSingleKey) {
                 removeEntity(_getKey(entity, component), entity);
             } else {
@@ -76,9 +76,9 @@ namespace Entitas {
             }
         }
 
-        protected abstract void addEntity(TKey key, Entity entity);
+        protected abstract void addEntity(TKey key, IEntity entity);
 
-        protected abstract void removeEntity(TKey key, Entity entity);
+        protected abstract void removeEntity(TKey key, IEntity entity);
 
         protected abstract void clear();
 

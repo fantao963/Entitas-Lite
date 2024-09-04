@@ -5,7 +5,7 @@ namespace Entitas {
 	public class Monitor : IMonitor {
 
 		readonly ICollector _collector;
-		readonly List<Entity> _buffer;
+		readonly List<IEntity> _buffer;
 
 		MonitorFilter _filter;
 		MonitorProcessor _processor;
@@ -13,7 +13,7 @@ namespace Entitas {
 		public Monitor(ICollector colllector)
 		{
 			_collector = colllector;
-			_buffer = new List<Entity>();
+			_buffer = new List<IEntity>();
 		}
 
 		/// This will exclude all entities which don't pass the filter.
