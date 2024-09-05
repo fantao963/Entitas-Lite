@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Entitas.Utils;
@@ -77,20 +77,69 @@ namespace Entitas {
 		EntityEvent _cachedEntityReleased;
 		EntityEvent _cachedDestroyEntity;
 
-		/// The prefered way to create a context is to use the generated methods
-		/// from the code generator, e.g. var context = new GameContext();
-		public Context(int totalComponents) : this(totalComponents, 0, null, null)
+		private static int componentCount=-1;
+		private static int CalculateTotalComponents()
+		{
+			if (componentCount < 0)
+			{
+				componentCount=CollectComponent().Count;
+			}
+			return componentCount;
+		}
+        #region CollectAllComponents
+        /// Collect all Compoent-Types in current domain
+        private static List<Type> CollectComponent()
+        {
+            var defaultContextName = ContextAttribute.GetName<Default>();
+
+            var compType = typeof(IComponent);
+            var types = AppDomain.CurrentDomain.GetAssemblies()
+                                .SelectMany(s => s.GetTypes())
+                                .Where(p => p.IsClass && p.IsPublic && !p.IsAbstract &&
+                                            compType.IsAssignableFrom(p));
+
+
+            List<Type> list= new List<Type>();
+            var attrType = typeof(ContextAttribute);
+
+            foreach (var t in types)
+            {
+                var attribs = t.GetCustomAttributes(attrType, false);
+
+				if (typeof(C) == typeof(Default))
+				{
+                    if (attribs == null || attribs.Length <= 0)
+                    {
+                        list.Add(t);
+						continue;
+                    }
+                }
+
+                foreach (var attr in attribs)
+                {
+                    if ((typeof(C)==(attr.GetType())))
+                    {
+                        list.Add(t);
+						continue;
+                    }
+                }
+
+            }
+
+            return list;
+        }
+        #endregion
+        /// The prefered way to create a context is to use the generated methods
+        /// from the code generator, e.g. var context = new GameContext();
+        public Context() : this(CalculateTotalComponents(), 0, null, null)
+        {
+        }
+
+        /// The prefered way to create a context is to use the generated methods
+        /// from the code generator, e.g. var context = new GameContext();
+        public Context(int totalComponents) : this(totalComponents, 0, null, null)
 		{
 		}
-
-		// TODO Obsolete since 0.41.0, April 2017
-		[Obsolete("Migration Support for 0.41.0. Please use new Context(totalComponents, startCreationIndex, contextInfo, aercFactory)")]
-		public Context(int totalComponents, int startCreationIndex, ContextInfo contextInfo)
-			: this(totalComponents,
-				   startCreationIndex,
-				   contextInfo,
-				   (entity) => new SafeAERC(entity))
-		{ }
 
 		/// The prefered way to create a context is to use the generated methods
 		/// from the code generator, e.g. var context = new GameContext();

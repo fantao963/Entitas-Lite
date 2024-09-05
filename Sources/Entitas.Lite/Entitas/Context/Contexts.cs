@@ -1,4 +1,4 @@
-//using System;
+﻿//using System;
 //using System.Collections.Generic;
 //using System.Linq;
 
@@ -34,11 +34,11 @@
 //		public IContext[] allContexts { get { return _contextList; } }
 //		public Context defaultContext { get { return _defaultContext; } }
 
-//		public Context GetContext<S>() where S:ContextAttribute { return GetContext(ContextAttribute.GetName<S>()); }
+//		public Context GetContext<S>() where S : ContextAttribute { return GetContext(ContextAttribute.GetName<S>()); }
 //		public Context GetContext(string contextName) { return _contextLookup[contextName]; }
 
 //		public static Context Default { get { return sharedInstance.defaultContext; } }
-//		public static Context Get<S>() where S:ContextAttribute { return sharedInstance.GetContext<S>(); }
+//		public static Context Get<S>() where S : ContextAttribute { return sharedInstance.GetContext<S>(); }
 //		public static Context Get(string contextName) { return sharedInstance.GetContext(contextName); }
 
 
@@ -63,8 +63,8 @@
 
 //			var comps = CollectAllComponents();
 
-//			var contextList = new List<Context>();
-//			_contextLookup = new Dictionary<string, Context>();
+//			var contextList = new List<IContext>();
+//			_contextLookup = new Dictionary<string, IContext>();
 
 //			foreach (var cc in comps)
 //			{

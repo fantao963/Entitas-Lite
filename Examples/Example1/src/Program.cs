@@ -110,7 +110,7 @@ namespace Example
 
 			// create random entity
 			var rand = new System.Random();
-			var context = new Context<Default>(100);
+			var context = new Context<Default>();
 			var e = context.CreateEntity();
 				e.Add<PositionComponent>();
 				e.Add<VelocityComponent>().SetValue(rand.Next()%10, rand.Next()%10);

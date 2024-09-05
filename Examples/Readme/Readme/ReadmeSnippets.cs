@@ -1,4 +1,4 @@
-using Entitas;
+﻿using Entitas;
 using UnityEngine;
 
 namespace Readme {
@@ -17,7 +17,7 @@ namespace Readme {
         }
 
         static void moveSystem() {
-            var context = new Context<Game>(100);
+            var context = new Context<Game>();
             //
             //...
             //
@@ -48,7 +48,7 @@ namespace Readme {
         static void contextExample() {
             // contexts.context is kindly generated for you by the code generator
             //var contexts = Contexts.sharedInstance;
-            var context = new Context<Game>(100);
+            var context = new Context<Game>();
             var entity = context.CreateEntity();
             entity.Add<MovableComponent>();
 
@@ -86,7 +86,7 @@ namespace Readme {
         }
 
 		static void monitorExample() {
-            var context = new Context<Game>(100);
+            var context = new Context<Game>();
             //
             //...
             //

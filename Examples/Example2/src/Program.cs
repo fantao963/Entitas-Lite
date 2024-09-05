@@ -1,4 +1,4 @@
-using Entitas;
+﻿using Entitas;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -85,7 +85,7 @@ namespace Example
 		public void Start()
 		{
 			//var contexts = Contexts.sharedInstance;
-			_context = new Context<Default>(100);
+			_context = new Context<Default>();
 
 #if UNITY_EDITOR
 			ContextObserverHelper.ObserveAll(contexts);
