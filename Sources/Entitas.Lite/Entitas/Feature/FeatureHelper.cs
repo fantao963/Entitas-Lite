@@ -41,36 +41,33 @@ namespace Entitas
 		public static void CollectSystems(string name, Systems feature)
 		{
 			var sysType = typeof(ISystem);
-			var ssType = typeof(Systems);
 
 			var types = AppDomain.CurrentDomain.GetAssemblies()
 								.SelectMany(s => s.GetTypes())
 								.Where(p => p.IsClass 
 										&& p.IsPublic 
 										&& !p.IsAbstract
-										&& sysType.IsAssignableFrom(p)
-										&& !ssType.IsAssignableFrom(p));
+										&& sysType.IsAssignableFrom(p));
 
 			var attribType = typeof(FeatureAttribute);
 			var c = new List<SystemProxy>();
 
 			foreach (var p in types)
 			{
-				var attribs = p.GetCustomAttributes(attribType, false)
-								.Where(attr => ((FeatureAttribute)attr).name == name);
+				var contextattrs= p.GetCustomAttributes(typeof(ContextAttribute), false);
+				if(!contextattrs.Any((it)=>it.GetType().Name==name))
+				{
+					continue;
+				}
 
-				string n = UnnamedFeature.NAME;
+				var attribs = p.GetCustomAttributes(attribType, false);
 				int w = 0;
 
 				foreach (var attr in attribs)
 				{
 					var attrib = (FeatureAttribute)attr;
-					n = attrib.name;
 					w = attrib.priority;
 				}
-
-				if (n != name)
-					continue;
 
 				var system = (ISystem)Activator.CreateInstance(p);
 				c.Add(new SystemProxy(system, w));

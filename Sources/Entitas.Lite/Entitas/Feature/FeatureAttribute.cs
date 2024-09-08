@@ -15,7 +15,7 @@ namespace Entitas
 			priority = prior;
 		}
 
-		protected FeatureAttribute(int prior = 0)
+        public FeatureAttribute(int prior = 0)
 		{
 			this.name = RemoveSuffix(GetType().Name);
 			priority = prior;

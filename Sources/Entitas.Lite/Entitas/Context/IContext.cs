@@ -22,6 +22,7 @@ namespace Entitas {
         int count { get; }
         int reusableEntitiesCount { get; }
         int retainedEntitiesCount { get; }
+        string name { get; }
 
         void DestroyAllEntities();
 

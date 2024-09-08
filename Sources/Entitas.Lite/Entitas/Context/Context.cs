@@ -11,7 +11,7 @@ namespace Entitas {
 	/// from the code generator, e.g. var context = new GameContext();
 	public partial class Context<C> : IContext where C : ContextAttribute
     {
-
+		public string name { get { return typeof(C).Name; } }
         /// Occurs when an entity gets created.
         public event ContextEntityChanged OnEntityCreated;
 
