@@ -45,14 +45,14 @@ namespace Example
 		}
 	}
 
-	public class ProcessInputSystem : ReactiveSystem,IInitializeSystem
+	public class ProcessInputSystem : ReactiveSystem
 	{
 		public ProcessInputSystem()
 		{
 			
 		}
 
-        public void Initialize()
+        public override void Initialize()
         {
             monitors += Context.AllOf<InputComponent>().OnAdded(Process);
         }
