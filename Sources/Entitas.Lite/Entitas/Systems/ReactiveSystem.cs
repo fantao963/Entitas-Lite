@@ -7,7 +7,8 @@ namespace Entitas {
     /// A common use-case is to react to changes, e.g. a change of the position
     /// of an entity to update the gameObject.transform.position
     /// of the related gameObject.
-    public abstract class ReactiveSystem : IReactiveSystem {
+    public abstract class ReactiveSystem : IReactiveSystem 
+    {
 
         public IContext Context { get; set; }
         readonly MonitorList _monitors;
@@ -73,6 +74,8 @@ namespace Entitas {
 
             return _toStringCache;
         }
+
+        public abstract void Initialize();
 
         ~ReactiveSystem() {
             Deactivate();

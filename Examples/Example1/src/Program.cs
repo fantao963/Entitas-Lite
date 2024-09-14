@@ -54,26 +54,15 @@ namespace Example
 			}
 		}
 	}
-    [Default]
+	[Default]
     // Sample view just display Entity's Position if changed
-    public class ViewSystem : ReactiveSystem,IInitializeSystem
+    public class ViewSystem : ReactiveSystem
 	{
-		public ViewSystem()
-		{
+
+
+        public override void Initialize()
+        {
 			// new API, add monitor that watch Position changed and call Process 
-			//monitors += Context<Default>.AllOf<PositionComponent>().OnAdded(Process);
-		}
-
-  
-        public override void Execute()
-        {
-
-
-            base.Execute();
-        }
-
-        public void Initialize()
-        {
             monitors += Context.AllOf<PositionComponent>().OnAdded(Process);
         }
 

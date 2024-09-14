@@ -1,6 +1,7 @@
 ﻿namespace Entitas {
 
-    public interface IReactiveSystem : IExecuteSystem {
+    public interface IReactiveSystem : IExecuteSystem , IInitializeSystem
+    {
 
         void Activate();
         void Deactivate();
