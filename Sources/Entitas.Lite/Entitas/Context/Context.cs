@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Entitas.Utils;
 
 namespace Entitas {
@@ -12,6 +13,9 @@ namespace Entitas {
 	public partial class Context<C> : IContext where C : ContextAttribute
     {
 		public string name { get { return typeof(C).Name; } }
+
+		public Type contextType { get { return typeof(C); } }
+
         /// Occurs when an entity gets created.
         public event ContextEntityChanged OnEntityCreated;
 
@@ -101,6 +105,30 @@ namespace Entitas {
 
             List<Type> list= new List<Type>();
             var attrType = typeof(ContextAttribute);
+			HashSet<Type> contextList = new HashSet<Type>();
+			List<Type> attrList = new List<Type>();
+            attrList.Add(typeof(C));
+			while(attrList.Count > 0)
+			{
+                var type = attrList[0];
+				attrList.RemoveAt(0);
+				if (contextList.Contains(type))
+				{
+					continue;
+				}
+				contextList.Add(type);
+				var attrs = type.GetCustomAttributes(attrType, false);
+				foreach (var attr in attrs)
+				{
+					var attrName = attr.GetType().Name;
+					if (attrName == defaultContextName)
+					{
+						continue;
+					}
+					attrList.Add(attr.GetType());
+				}
+
+			}
 
             foreach (var t in types)
             {
@@ -117,7 +145,7 @@ namespace Entitas {
 
                 foreach (var attr in attribs)
                 {
-                    if ((typeof(C)==(attr.GetType())))
+                    if (contextList.Contains((attr.GetType())))
                     {
                         list.Add(t);
 						continue;

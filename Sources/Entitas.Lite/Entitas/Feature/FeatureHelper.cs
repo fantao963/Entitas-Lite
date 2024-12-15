@@ -52,10 +52,38 @@ namespace Entitas
 			var attribType = typeof(FeatureAttribute);
 			var c = new List<SystemProxy>();
 
-			foreach (var p in types)
+			
+            var defaultContextName = ContextAttribute.GetName<Default>();
+            var attrType = typeof(ContextAttribute);
+            HashSet<Type> contextSet = new HashSet<Type>();
+            List<Type> attrList = new List<Type>();
+            attrList.Add(feature.Context.contextType);
+            while (attrList.Count > 0)
+            {
+                var type = attrList[0];
+                attrList.RemoveAt(0);
+                if (contextSet.Contains(type))
+                {
+                    continue;
+                }
+                contextSet.Add(type);
+                var attrs = type.GetCustomAttributes(attrType, false);
+                foreach (var attr in attrs)
+                {
+                    var attrName = attr.GetType().Name;
+                    if (attrName == defaultContextName)
+                    {
+                        continue;
+                    }
+                    attrList.Add(attr.GetType());
+                }
+            }
+
+
+            foreach (var p in types)
 			{
 				var contextattrs= p.GetCustomAttributes(typeof(ContextAttribute), false);
-				if(!contextattrs.Any((it)=>it.GetType().Name==name))
+				if(!contextattrs.Any((it)=> contextSet.Contains(it.GetType())))
 				{
 					continue;
 				}

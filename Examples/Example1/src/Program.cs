@@ -9,13 +9,23 @@ using UnityEngine;
 
 namespace Example
 {
-	[Default]
+
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
+    public sealed class Game : ContextAttribute { }
+
+
+
+    [Game]//继承 Game上下文的组件
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
+    public sealed class Example : ContextAttribute { }
+
+    [Game]
 	public class PositionComponent : IComponent
 	{
 		public int x;
 		public int y;
 	}
-    [Default]
+    [Game]
     // if no context declaration, it comes into Default context
     public class VelocityComponent : IComponent
 	{
@@ -29,7 +39,7 @@ namespace Example
 			y = ny;
 		}
 	}
-    [Default]
+    [Game]
     // if no feature-set declaration, it comes into UnnamedFeature
     public class MovementSystem : IExecuteSystem
 	{
@@ -54,7 +64,7 @@ namespace Example
 			}
 		}
 	}
-	[Default]
+	[Game]
     // Sample view just display Entity's Position if changed
     public class ViewSystem : ReactiveSystem
 	{
@@ -99,7 +109,7 @@ namespace Example
 
 			// create random entity
 			var rand = new System.Random();
-			var context = new Context<Default>();
+			var context = new Context<Example>();
 			var e = context.CreateEntity();
 				e.Add<PositionComponent>();
 				e.Add<VelocityComponent>().SetValue(rand.Next()%10, rand.Next()%10);
