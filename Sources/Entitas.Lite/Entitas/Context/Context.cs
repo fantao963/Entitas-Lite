@@ -1,8 +1,9 @@
-﻿using System;
+﻿using Entitas.Utils;
+using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Entitas.Utils;
 
 namespace Entitas {
 
@@ -246,8 +247,12 @@ namespace Entitas {
 
 			_entities.Add(entity);
 			entity.Retain(this);
-			_entitiesCache = null;
-			entity.OnComponentAdded += _cachedEntityChanged;
+            if (_entitiesCache != null)
+            {
+                ArrayPool<IEntity>.Shared.Return(_entitiesCache);
+                _entitiesCache = null;
+            }
+            entity.OnComponentAdded += _cachedEntityChanged;
 			entity.OnComponentRemoved += _cachedEntityChanged;
 			entity.OnComponentReplaced += _cachedComponentReplaced;
 			entity.OnEntityReleased += _cachedEntityReleased;
@@ -279,9 +284,13 @@ namespace Entitas {
 					"This cannot happen!?!"
 				);
 			}
-			_entitiesCache = null;
+            if (_entitiesCache != null)
+            {
+                ArrayPool<IEntity>.Shared.Return(_entitiesCache);
+                _entitiesCache = null;
+            }
 
-			if (OnEntityWillBeDestroyed != null)
+            if (OnEntityWillBeDestroyed != null)
 			{
 				OnEntityWillBeDestroyed(this, entity);
 			}
@@ -339,7 +348,7 @@ namespace Entitas {
 		{
 			if (_entitiesCache == null)
 			{
-				_entitiesCache = new IEntity[_entities.Count];
+				_entitiesCache = ArrayPool<IEntity>.Shared.Rent(_entities.Count);
 				_entities.CopyTo(_entitiesCache);
 			}
 

@@ -5,4 +5,7 @@
   <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition=" '$(Configuration)' == 'Release' ">
     <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(SolutionDir)\Build\Deploy\Entitas-Lite" />
   </Target>
+  <ItemGroup>
+    <PackageReference Include="System.Buffers" Version="4.6.1" />
+  </ItemGroup>
 </Project>

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System.Buffers;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace Entitas {
@@ -93,7 +94,12 @@ namespace Entitas {
             if (entity.isEnabled) {
                 var added = _entities.Add(entity);
                 if (added) {
-                    _entitiesCache = null;
+                    if(_entitiesCache != null)
+                    {
+                        ArrayPool<IEntity>.Shared.Return(_entitiesCache);
+                        _entitiesCache = null;
+                    }
+                    
                     _singleEntityCache = null;
                     entity.Retain(this);
                 }
@@ -113,7 +119,11 @@ namespace Entitas {
         bool removeEntitySilently(IEntity entity) {
             var removed = _entities.Remove(entity);
             if (removed) {
-                _entitiesCache = null;
+                if (_entitiesCache != null)
+                {
+                    ArrayPool<IEntity>.Shared.Return(_entitiesCache);
+                    _entitiesCache = null;
+                }
                 _singleEntityCache = null;
                 entity.Release(this);
             }
@@ -124,7 +134,11 @@ namespace Entitas {
         void removeEntity(IEntity entity, int index, IComponent component) {
             var removed = _entities.Remove(entity);
             if (removed) {
-                _entitiesCache = null;
+                if (_entitiesCache != null)
+                {
+                    ArrayPool<IEntity>.Shared.Return(_entitiesCache);
+                    _entitiesCache = null;
+                }
                 _singleEntityCache = null;
                 if (OnEntityRemoved != null) {
                     OnEntityRemoved(this, entity, index, component);
@@ -141,7 +155,7 @@ namespace Entitas {
         /// Returns all entities which are currently in this group.
         public IEntity[] GetEntities() {
             if (_entitiesCache == null) {
-                _entitiesCache = new IEntity[_entities.Count];
+                _entitiesCache =  ArrayPool<IEntity>.Shared.Rent(_entities.Count);
                 _entities.CopyTo(_entitiesCache);
             }
 
